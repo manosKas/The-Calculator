@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="currency_code">
+        <item>USD</item>
+        <item>GBP</item>
+        <item>JPY</item>
+        <item>INR</item>
+        <item>RUB</item>
+    </string-array>
+    <string-array name="currency_name">
+        <item>US Dollar</item>
+        <item>Pound Sterling</item>
+        <item>Yen</item>
+        <item>Indian Rupee</item>
+        <item>Russian Ruble</item>
+    </string-array>
+    <string-array name="country_name">
+        <item>United States OF America</item>
+        <item>United Kingdom</item>
+        <item>Japan</item>
+        <item>India</item>
+        <item>Russia</item>
+    </string-array>
+</resources>
