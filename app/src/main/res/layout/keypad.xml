@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -15,27 +14,27 @@
         android:text="+"
         android:textColor="#01579B"
         android:textSize="36sp"
-        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/calculate"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/point"
         app:layout_constraintTop_toBottomOf="@+id/subtraction" />
 
-    <ImageView
-        android:id="@+id/allclear"
+    <Button
+        android:id="@+id/clear"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:backgroundTint="@color/colorAccent"
-        android:contentDescription="AC"
+        android:backgroundTint="@android:color/background_light"
+        android:contentDescription="ce"
         android:onClick="onClick"
-        android:scaleType="fitCenter"
-        android:tint="#01579B"
+        android:text="C E"
+        android:textColor="#01579B"
+        android:textSize="36sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/seven"
         app:layout_constraintEnd_toStartOf="@+id/backspace"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_baseline_clear_24" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/backspace"
@@ -65,7 +64,6 @@
         android:text="*"
         android:textColor="#01579B"
         android:textSize="36sp"
-        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/division"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -82,12 +80,11 @@
         android:text="7"
         android:textColor="#01579B"
         android:textSize="36sp"
-        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/four"
         app:layout_constraintEnd_toStartOf="@+id/zero"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/allclear" />
+        app:layout_constraintTop_toBottomOf="@+id/clear" />
 
     <Button
         android:id="@+id/division"
@@ -99,7 +96,6 @@
         android:text="/"
         android:textColor="#01579B"
         android:textSize="36sp"
-        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/subtraction"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -116,12 +112,11 @@
         android:text="8"
         android:textColor="#01579B"
         android:textSize="36sp"
-        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/five"
         app:layout_constraintEnd_toStartOf="@+id/point"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/curr_conv"
-        app:layout_constraintTop_toBottomOf="@+id/allclear" />
+        app:layout_constraintTop_toBottomOf="@+id/clear" />
 
     <Button
         android:id="@+id/four"
@@ -133,7 +128,6 @@
         android:text="4"
         android:textColor="#01579B"
         android:textSize="36sp"
-        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/one"
         app:layout_constraintEnd_toStartOf="@+id/zero"
         app:layout_constraintHorizontal_bias="0.0"
@@ -150,7 +144,6 @@
         android:text="5"
         android:textColor="#01579B"
         android:textSize="36sp"
-        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/two"
         app:layout_constraintEnd_toStartOf="@+id/point"
         app:layout_constraintHorizontal_bias="0.0"
@@ -167,7 +160,6 @@
         android:text="6"
         android:textColor="#01579B"
         android:textSize="36sp"
-        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/three"
         app:layout_constraintEnd_toStartOf="@+id/calculate"
         app:layout_constraintHorizontal_bias="0.0"
@@ -184,7 +176,6 @@
         android:text="-"
         android:textColor="#01579B"
         android:textSize="36sp"
-        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/addition"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -201,7 +192,6 @@
         android:text="9"
         android:textColor="#01579B"
         android:textSize="36sp"
-        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/six"
         app:layout_constraintEnd_toStartOf="@+id/calculate"
         app:layout_constraintHorizontal_bias="0.0"
@@ -218,7 +208,6 @@
         android:text="1"
         android:textColor="#01579B"
         android:textSize="36sp"
-        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/curr_conv"
         app:layout_constraintEnd_toStartOf="@+id/zero"
         app:layout_constraintHorizontal_bias="0.0"
@@ -235,7 +224,6 @@
         android:text="3"
         android:textColor="#01579B"
         android:textSize="36sp"
-        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/point"
         app:layout_constraintEnd_toStartOf="@+id/calculate"
         app:layout_constraintHorizontal_bias="0.0"
@@ -248,13 +236,14 @@
         android:layout_height="0dp"
         android:contentDescription="cc"
         android:onClick="onClick"
+        android:scaleType="fitCenter"
         android:tint="#01579B"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/zero"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/one"
-        app:srcCompat="@drawable/ic_baseline_monetization_on_24" />
+        app:srcCompat="@drawable/cc" />
 
     <Button
         android:id="@+id/zero"
@@ -282,7 +271,6 @@
         android:text="."
         android:textColor="#01579B"
         android:textSize="36sp"
-        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/calculate"
         app:layout_constraintHorizontal_bias="0.5"
@@ -316,7 +304,6 @@
         android:text="2"
         android:textColor="#01579B"
         android:textSize="36sp"
-        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/zero"
         app:layout_constraintEnd_toStartOf="@+id/point"
         app:layout_constraintHorizontal_bias="0.0"

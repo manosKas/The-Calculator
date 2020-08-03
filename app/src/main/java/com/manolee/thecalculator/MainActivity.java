@@ -1,75 +1,64 @@
 package com.manolee.thecalculator;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
-import android.text.Editable;
 import android.text.InputType;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONArray;
+import androidx.appcompat.app.AppCompatActivity;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.ref.WeakReference;
-import java.lang.reflect.Array;
-import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import static com.manolee.thecalculator.Constants.ADD;
+import static com.manolee.thecalculator.Constants.API_URL;
+import static com.manolee.thecalculator.Constants.BACKSPACE;
+import static com.manolee.thecalculator.Constants.CALCULATE;
+import static com.manolee.thecalculator.Constants.CLEAR;
+import static com.manolee.thecalculator.Constants.CURRENCY_CONVERSION;
+import static com.manolee.thecalculator.Constants.DIV;
+import static com.manolee.thecalculator.Constants.MUL;
+import static com.manolee.thecalculator.Constants.RX_NUMBER;
+import static com.manolee.thecalculator.Constants.SUB;
+import static com.manolee.thecalculator.Constants.ZERO;
+import static com.manolee.thecalculator.Helpers.PreviousCharacter;
+import static com.manolee.thecalculator.Helpers.formatResult;
+import static com.manolee.thecalculator.Helpers.isOperator;
 
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, asyncTaskListener {
-    EditText input;
-    TextView result, history;
-    ImageView allClear, backspace,cc;
-    Button mul, div, sub, add, point, calc;
-    Button zero, one, two, three, four, five, six, seven, eight, nine;
-    String currentToken = "";
-    String typedInput;
-    static final String RX_NUMBER = "\\d{0,8}[.]?\\d{0,8}";
-    private List<String> operand;
-    private List<String> operator;
-    private int n;
-    private static String API_URL = "http://data.fixer.io/api/latest?access_key=ab5207dc17e68e020bf5e8590f2e01b8&symbols=USD,GBP,JPY,INR,RUB";
-    private boolean currencyConverterHint = true;
-    private int chosenCurrency=0;
-    private double[] currencyRate ;
-    private String[] currencyCode = {"USD","GBP","JPY","INR","RUB"};
+    TextView input, result, history;
+    ImageView backspace, currencyConversion;
+    Button clear, mul, div, sub, add, point, calc, zero, one, two, three, four, five, six, seven, eight, nine;
+    String currentToken = "", typedInput;
+
+    private Expression e;
+    private CurrencyConversion cc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        cc = new CurrencyConversion();
         // Button initialization
         input = findViewById(R.id.input);
         input.setInputType(InputType.TYPE_NULL);
         result = findViewById(R.id.result);
         history = findViewById(R.id.history);
-        allClear = findViewById(R.id.allclear);
+        clear = findViewById(R.id.clear);
         backspace = findViewById(R.id.backspace);
         mul = findViewById(R.id.multiplication);
         div = findViewById(R.id.division);
         sub = findViewById(R.id.subtraction);
         add = findViewById(R.id.addition);
-        cc = findViewById(R.id.curr_conv);
+        currencyConversion = findViewById(R.id.curr_conv);
         point = findViewById(R.id.point);
         calc = findViewById(R.id.calculate);
-
         zero = findViewById(R.id.zero);
         one = findViewById(R.id.one);
         two = findViewById(R.id.two);
@@ -80,15 +69,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         seven = findViewById(R.id.seven);
         eight = findViewById(R.id.eight);
         nine = findViewById(R.id.nine);
-
-        cc.setOnLongClickListener(new View.OnLongClickListener() {
+        // Long click functionality to currency conversion button
+        currencyConversion.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                currencyConverterHint = false;
+                cc.showHint = false;
                 new AlertDialog.Builder(MainActivity.this).setItems(R.array.currency_name, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        chosenCurrency = which;
+                        CurrencyConversion.conversionTo = which;
                     }
                 }).create().show();
                 return false;
@@ -106,35 +95,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.history: // expand history
                 break;
-            case R.id.curr_conv: // currency conversion
-                CurrencyConversion();
+            case R.id.curr_conv:
+                typedInput = CURRENCY_CONVERSION;
                 break;
-            case R.id.calculate: // get result
-                Calculation();
+            case R.id.calculate:
+                typedInput = CALCULATE;
                 break;
-            case R.id.allclear: // clear all
-                typedInput = "ac";
+            case R.id.clear:
+                typedInput = CLEAR;
                 break;
-            case R.id.backspace: // backspace
-                typedInput = "bs";
+            case R.id.backspace:
+                typedInput = BACKSPACE;
                 break;
             case R.id.multiplication:
-                typedInput = "*";
+                typedInput = MUL;
                 break;
             case R.id.division:
-                typedInput = "/";
+                typedInput = DIV;
                 break;
             case R.id.subtraction:
-                typedInput = "-";
+                typedInput = SUB;
                 break;
             case R.id.addition:
-                typedInput = "+";
+                typedInput = ADD;
                 break;
             case R.id.point:
                 typedInput = ".";
                 break;
             case R.id.zero:
-                typedInput = "0";
+                typedInput = ZERO;
                 break;
             case R.id.one:
                 typedInput = "1";
@@ -166,190 +155,129 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         if (ValidateInput())
             performAction();
-        else
-            Log.d("derp", "! invalid input : " + currentToken);
     }
 
+    // Checks the validity of the current input
     private boolean ValidateInput() {
-        Log.d("derp", "typed input: " + typedInput);
-        return ifNumber() || ifOperator() || ifAction();
+        return ifAction() || ifOperator() || ifNumber();
     }
 
+    // Returns true if input is an Action
     private boolean ifAction() {
-        Log.d("derp", "ifAction ");
-        return typedInput.equals("ac") || typedInput.equals("c") || typedInput.equals("bs");
+        return typedInput.equals(CLEAR) || typedInput.equals(BACKSPACE) || typedInput.equals(CURRENCY_CONVERSION) || typedInput.equals(CALCULATE);
     }
 
+    // Returns true if input is an Operator
     private boolean ifOperator() {
-        Log.d("derp", "ifOperator ");
         if (isOperator(typedInput)) { // check if input is operator
-            if (input.length() == 0) // if operator is first check
+            if (input.length() == 0) // do not allow an operator as first character in formula input
                 return false;
-            if (isOperator(PreviousCharacter())) { // double operator check
-                input.setText(input.getText().replace(input.length() - 1, input.length(), typedInput));
-                return false;
-            }
+            if (isOperator(PreviousCharacter(String.valueOf(input.getText()))))  // double operator typed
+                input.setText(input.getText().subSequence(0, input.length() - 1)); // removes previous operator for the new to be added
             if (currentToken.length() > 0) // reset current token
-                currentToken = "";
+                currentToken = ""; // ready to parse next operand number
             return true;
         }
         return false;
     }
 
+    // Returns true if input is an Number
     private boolean ifNumber() {
-        Log.d("derp", "ifNumber ");
-        if (currentToken.length() == 0 && typedInput.equals(".")) // case 0.xxx
-            typedInput = "0" + typedInput;
-        if (currentToken.equals("0") && typedInput.equals("0"))
+        if (currentToken.equals(ZERO) && typedInput.equals(ZERO)) // allow only one zero to be typed at the start of a number
             return false;
-        if ((currentToken + typedInput).matches(RX_NUMBER)) {
-            currentToken = currentToken + typedInput;
-            return true;
-        }
-        return false;
-    }
-
-    private boolean isOperator(String token) {
-        return token.equals("+") || token.equals("-") || token.equals("/") || token.equals("*");
-    }
-
-    private String PreviousCharacter() {
-        if (input.length() > 0)
-            return String.valueOf(input.getText().charAt(input.length() - 1));
+        if (currentToken.length() == 0 && typedInput.equals(".")) // case point is typed first
+            typedInput = ZERO + typedInput; // add a zero on the left
+        if (!(currentToken + typedInput).matches(RX_NUMBER)) // match current parsed token with typed character if matches to a number format
+            return false;
         else
-            return "";
-    }
-
-    private void Calculation() {
-        if (input.length() >= 3) {
-            if (isOperator(PreviousCharacter())) // checks if there is a stray operator at the end of the input and removes it
-                input.setText(input.getText().replace(input.length(), input.length(), ""));
-            result.setText(formatResult(calculate()));
-        }
-    }
-
-    public static String formatResult(double d) {
-        if (Double.isInfinite(d)) return "Can't divide by Zero.";
-        if (Double.isNaN(d)) return "Not a number";
-        if (d == (long) d) return String.format("%d", (long) d);
-        else return String.format("%s", d);
-    }
-
-    private int parseFormula() {
-        String formula = String.valueOf(input.getText());
-        int indexStart = 0, indexEnd;
-        operand = new ArrayList<>();
-        operator = new ArrayList<>();
-        n = 1;
-        for (int i = 1; i < formula.length(); i++) {
-            if (i == formula.length() - 1) {
-                operand.add(formula.substring(indexStart));
-            }
-            if (isOperator(String.valueOf(formula.charAt(i)))) {
-                indexEnd = i;
-                operand.add(formula.substring(indexStart, indexEnd)); // numbers as operands
-                operator.add(formula.substring(indexEnd, indexEnd + 1)); // math symbols as operators
-                n++;
-                indexStart = indexEnd + 1;
-            }
-        }
-        return operand.size();
-    }
-
-    private double calculate() {
-        parseFormula();
-        double firstOP = Double.parseDouble(operand.get(0));
-        double secondOP;
-        double res = 0;
-        for (int j = 0; j < n - 1; j++) {
-            secondOP = Double.parseDouble(operand.get(j + 1));
-            Log.d("derp", "number of total operands: " + operand.size());
-            Log.d("derp", (j + 1) + " of " + operator.size() + " operations: " + firstOP + operator.get(j) + secondOP);
-            switch (operator.get(j)) {
-                case "+":
-                    res = Operation.add(firstOP, secondOP);
-                    break;
-                case "-":
-                    res = Operation.sub(firstOP, secondOP);
-                    break;
-                case "/":
-                    res = Operation.div(firstOP, secondOP);
-                    break;
-                case "*":
-                    res = Operation.mul(firstOP, secondOP);
-                    break;
-            }
-            firstOP = res;
-        }
-        return res;
-    }
-
-    private void CurrencyConversion() {
-        if(currencyConverterHint){
-            Toast.makeText(this,"Long press to choose currency",Toast.LENGTH_LONG).show();
-        }
-        if (hasInternetAccess() && isOneValue())
-            new CurrencyConversionAPI(this).execute(API_URL);
-    }
-
-    private boolean isOneValue() {
-        parseFormula();
+            currentToken = currentToken + typedInput; // append the typed character at the end of the current number token
         return true;
     }
 
-    private boolean hasInternetAccess() {
-        try {
-            InetAddress ipAddr = InetAddress.getByName("google.com");
-            //You can replace it with your name
-            return !ipAddr.equals("");
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
+    // Performs action accordingly
     public void performAction() {
         switch (typedInput) {
-            case "bs":
-                if (input.length() > 0) Backspace();
+            case BACKSPACE:
+                Backspace();
                 break;
-            case "ac":
-                Reset();
+            case CLEAR:
+                Clear();
+                break;
+            case CALCULATE:
+                Calculation();
+                break;
+            case CURRENCY_CONVERSION:
+                CurrencyConversion();
                 break;
             default:
                 input.append(typedInput);
         }
-        Log.d("derp", "current token: " + currentToken);
     }
 
+    // Action: Calculate
+    // makes new expression and calulates it,
+    private void Calculation() {
+        makeExpression();
+        if ((e.operand.size() > 1) && (e.operator.size() == (e.operand.size() - 1))) { // checks the least acceptable expression format
+            result.setText(formatResult(e.calculate())); // calculate expression
+        }
+    }
+
+    // Action: Backspace
+    // Perform Backspace operatrion
     private void Backspace() {
-        input.dispatchKeyEvent(new KeyEvent(0, 0, KeyEvent.ACTION_DOWN,
-                KeyEvent.KEYCODE_DEL, 0));
-        input.dispatchKeyEvent(new KeyEvent(0, 0, KeyEvent.ACTION_UP,
-                KeyEvent.KEYCODE_DEL, 0));
-        if (currentToken.length() > 0)
-            currentToken = currentToken.substring(0, currentToken.length() - 1);
+        if (input.length() > 0) {
+            input.setText(input.getText().subSequence(0, input.length() - 1));
+            if (currentToken.length() > 0)
+                currentToken = currentToken.substring(0, currentToken.length() - 1);
+        }
     }
 
-    private void Reset() {
+    // Action: CurrencyConversion
+    // Calls the API to get current currency conversion rates
+    private void CurrencyConversion() {
+        makeExpression();
+        if (e.operand.size() == 1) {
+            if (cc.showHint)
+                Toast.makeText(this, "Long press to choose currency", Toast.LENGTH_LONG).show();
+            new CurrencyConversionAPI(this).execute(API_URL);
+        } else
+            Toast.makeText(this, "Please, enter one value to convert", Toast.LENGTH_SHORT).show();
+    }
+
+    // Action: Clear
+    // Resets all the necessary fields
+    private void Clear() {
         input.setText("");
         result.setText("");
         currentToken = "";
     }
 
+    // Creates new expression to evaluate
+    private void makeExpression() {
+        e = new Expression(String.valueOf(input.getText()));
+        if (isOperator(PreviousCharacter(e.expression)))
+            Backspace();
+        e.parseFormula(String.valueOf(input.getText()));
+    }
+
+    // Callback for the fixer API
     @Override
     public void onTaskComplete(String r) {
-        Log.d("derp","json: "+r);
-        Currencies c;
+        JsonParser(r);
+        makeExpression();
+        result.setText(cc.convertCurrency(Double.parseDouble(e.operand.get(0))));
+    }
+
+    // Unpack response
+    private void JsonParser(String r) {
         try {
             JSONObject rates = new JSONObject(r).getJSONObject("rates");
-            currencyRate = new double[rates.length()];
-            for(int i=0; i<rates.length(); i++)
-                currencyRate[i] = rates.getDouble(currencyCode[i]);
-        }catch(JSONException e){
+            cc.currencyRate = new double[rates.length()];
+            for (int i = 0; i < rates.length(); i++)
+                cc.currencyRate[i] = rates.getDouble(CurrencyConversion.currencyCode[i]);
+        } catch (JSONException e) {
             e.printStackTrace();
         }
-        double baseValue = Double.parseDouble(String.valueOf(input.getText()));
-        double res = baseValue*currencyRate[chosenCurrency];
-        result.setText(String.valueOf(res));
     }
 }
